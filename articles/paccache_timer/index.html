@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html><head>
+	<meta charset="utf-8">
+		
+		<link rel="stylesheet" href="https://Serranya.github.io/scss/style.min.css">
+		<link rel="icon" href="/favicon.ico" type="image/x-icon">
+		<title>Serras Blog - Some things I know</title>
+</head>
+
+<body><header>
+	<nav>
+		<ol>
+			<li>
+				<a href="/">Blog</a>
+				<a href="/oss_contributions/">OSS Contributions</a>
+			</li>
+		</ol>
+	</nav>
+</header>
+
+<main>
+	<article>
+		<header>
+			<h1>Using systemd timers to clean the pacman cache</h1>
+			<span class="metadata">
+				Published:
+				<time datetime="2018-04-16T00:00:00&#43;0200">
+					2018-04-16
+				</time>
+			</span>
+		</header>
+		<div class="articleBody">
+			<p>When you install new packages via pacman it saves copies of these packages in its cache.
+Thіs alloweѕ you for example to roll back to an old package since the the official repos only
+provide the most recent version of a package.
+This caching has the downside that it can take away a lot of space.
+This is especially interesting if you are running on an Raspberry Pi like me.
+Cleaning the cache allowed me to reclaim more than 4GB.</p>
+
+<p>Since I don&rsquo;t really care about the cache I looked for an automated solution.
+I decided to use a systemd timer to clean the cache daily.
+Maybe setting the CacheDir of pacman to /dev/null would have also worked.</p>
+
+
+<a class="filename" href="#">
+	/etc/systemd/system/paccache.service
+</a>
+
+
+<div class="highlight"><pre class="chroma"><code class="language-plaintext" data-lang="plaintext">[Unit]
+Description=Cleans the pacman package cache
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/paccache --quiet --remove --keep 0</code></pre></div>
+
+
+<p>The service is controlled by the following timer:</p>
+
+
+<a class="filename" href="#">
+	/etc/systemd/system/paccache.timer
+</a>
+
+
+<div class="highlight"><pre class="chroma"><code class="language-plaintext" data-lang="plaintext">[Unit]
+Description=Periodically cleans the pacman package cache
+
+[Timer]
+OnCalendar=daily
+
+[Install]
+WantedBy=timers.target</code></pre></div>
+
+
+<p>After adding those two files remember to reload systemd:</p>
+
+
+
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">systemctl daemon-reload</code></pre></div>
+
+
+<p>The timer can be started and enabled like a normal unit:</p>
+
+
+
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">systemctl <span class="nb">enable</span> --now paccache.timer</code></pre></div>
+
+
+		</div>
+	</article>
+
+        </main></body>
+</html>

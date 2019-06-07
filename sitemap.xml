@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://Serranya.github.io/articles/</loc>
+    <lastmod>2018-06-06T00:00:00+02:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://Serranya.github.io/articles/mirror_to_github/</loc>
+    <lastmod>2018-06-06T00:00:00+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://Serranya.github.io/</loc>
+    <lastmod>2018-06-06T00:00:00+02:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://Serranya.github.io/articles/paccache_timer/</loc>
+    <lastmod>2018-04-16T00:00:00+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://Serranya.github.io/articles/spring_boot_multi_ds/</loc>
+    <lastmod>2018-02-01T00:00:00+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://Serranya.github.io/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://Serranya.github.io/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+</urlset>
