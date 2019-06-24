@@ -17,7 +17,7 @@
       
       <guid>https://Serranya.github.io/articles/mirror_to_github/</guid>
       <description>Github is probably the most famous and most used hoster for git repositories. It does not only provide hosting for the repository itself, but it also provides ticket management, wikis, website hosting, ci integration, binary hosting for releases and more.
-What I don&amp;rsquo;t like is to depend on it. With every feature of github I use it becomes more difficult to host my projects myself. While I can mirgrate most things (code, releases, issues, wiki pages) with an medium effort some things are mostly out of my control.</description>
+What I don&amp;rsquo;t like is to depend on it. With every feature of github I use, it becomes more difficult to host my projects myself. While I can mirgrate most things (code, releases, issues, wiki pages) with an medium effort some things are mostly out of my control.</description>
     </item>
     
     <item>
