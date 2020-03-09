@@ -1,20 +1,34 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Articles on Serras Blog - Some things I know</title>
     <link>https://Serranya.github.io/articles/</link>
     <description>Recent content in Articles on Serras Blog - Some things I know</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Wed, 06 Jun 2018 00:00:00 +0200</lastBuildDate>
+    <managingEditor>blog@peterlamby.de (Peter Lamby)</managingEditor>
+    <webMaster>blog@peterlamby.de (Peter Lamby)</webMaster>
+    <lastBuildDate>Fri, 06 Mar 2020 00:00:00 +0100</lastBuildDate>
     
 	<atom:link href="https://Serranya.github.io/articles/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>On Java Exceptions</title>
+      <link>https://Serranya.github.io/articles/on_java_exceptions/</link>
+      <pubDate>Fri, 06 Mar 2020 00:00:00 +0100</pubDate>
+      <author>blog@peterlamby.de (Peter Lamby)</author>
+      <guid>https://Serranya.github.io/articles/on_java_exceptions/</guid>
+      <description>What are exceptions Exceptions indicate occurences in the programm that are, well exceptional.
+Some examples of exceptions are:
+ Opening a file that does not exist Converting the String &amp;ldquo;test&amp;rdquo; to a number. Requesting some memory from the OS while it&amp;rsquo;s out of memory.  Some examples that are not exceptional:
+ Searching for the first occurence of an element in an array and not finding it. Searching a user by name in a database and not finding it.</description>
+    </item>
+    
+    <item>
       <title>Mirroring your own repo automatically to github</title>
       <link>https://Serranya.github.io/articles/mirror_to_github/</link>
       <pubDate>Wed, 06 Jun 2018 00:00:00 +0200</pubDate>
-      
+      <author>blog@peterlamby.de (Peter Lamby)</author>
       <guid>https://Serranya.github.io/articles/mirror_to_github/</guid>
       <description>Github is probably the most famous and most used hoster for git repositories. It does not only provide hosting for the repository itself, but it also provides ticket management, wikis, website hosting, ci integration, binary hosting for releases and more.
 What I don&amp;rsquo;t like is to depend on it. With every feature of github I use, it becomes more difficult to host my projects myself. While I can mirgrate most things (code, releases, issues, wiki pages) with an medium effort some things are mostly out of my control.</description>
@@ -24,7 +38,7 @@ What I don&amp;rsquo;t like is to depend on it. With every feature of github I u
       <title>Using systemd timers to clean the pacman cache</title>
       <link>https://Serranya.github.io/articles/paccache_timer/</link>
       <pubDate>Mon, 16 Apr 2018 00:00:00 +0200</pubDate>
-      
+      <author>blog@peterlamby.de (Peter Lamby)</author>
       <guid>https://Serranya.github.io/articles/paccache_timer/</guid>
       <description>When you install new packages via pacman it saves copies of these packages in its cache. Thіs alloweѕ you for example to roll back to an old package since the the official repos only provide the most recent version of a package. This caching has the downside that it can take away a lot of space. This is especially interesting if you are running on an Raspberry Pi like me. Cleaning the cache allowed me to reclaim more than 4GB.</description>
     </item>
@@ -33,7 +47,7 @@ What I don&amp;rsquo;t like is to depend on it. With every feature of github I u
       <title>Using multiple DataSources with Spring Boot</title>
       <link>https://Serranya.github.io/articles/spring_boot_multi_ds/</link>
       <pubDate>Thu, 01 Feb 2018 00:00:00 +0100</pubDate>
-      
+      <author>blog@peterlamby.de (Peter Lamby)</author>
       <guid>https://Serranya.github.io/articles/spring_boot_multi_ds/</guid>
       <description>When you want to use a Datasource with Spring Boot the DataSourceAutoConfiguration will set up some things for you.
 It will allow you to execute some initial SQL to initialize your database, support the spring.datasource properties, create an embedded Database for you when one of the supported .jars is found in the classpath, and support connection pooling.

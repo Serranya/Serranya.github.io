@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html><head>
+	<meta charset="utf-8">
+		
+		<link rel="stylesheet" href="https://Serranya.github.io/scss/style.min.css">
+		<link rel="icon" href="/favicon.ico" type="image/x-icon">
+		<title>Serras Blog - Some things I know</title>
+</head>
+
+<body><header>
+	<nav>
+		<ol>
+			<li>
+				<a href="/">Blog</a>
+				<a href="/CV.pdf">CV</a>
+			</li>
+		</ol>
+	</nav>
+</header>
+
+<main>
+	<article>
+		<header>
+			<h1>On Java Exceptions</h1>
+			<span class="metadata">
+				Published:
+				<time datetime="2020-03-06T00:00:00&#43;0100">
+					2020-03-06
+				</time>
+			</span>
+		</header>
+		<div class="articleBody">
+			<h2 id="what-are-exceptions">What are exceptions</h2>
+<p><a href="https://docs.oracle.com/javase/tutorial/essential/exceptions/definition.html">Exceptions</a>
+indicate occurences in the programm that are, well exceptional.</p>
+<p>Some examples of exceptions are:</p>
+<ul>
+<li>Opening a file that does not exist</li>
+<li>Converting the String &ldquo;test&rdquo; to a number.</li>
+<li>Requesting some memory from the OS while it&rsquo;s out of memory.</li>
+</ul>
+<p>Some examples that are not exceptional:</p>
+<ul>
+<li>Searching for the first occurence of an element in an
+array and not finding it.</li>
+<li>Searching a user by name in a database and not finding it.</li>
+</ul>
+<h2 id="how-languages-do-exceptions">How languages do exceptions</h2>
+<p>Programming languages have different ways to indicate that something
+exceptional occured.</p>
+<h3 id="special-return-value">Special return value</h3>
+<p>These programming languages use a special return value to indicate
+an exception.</p>
+<h4 id="c">C</h4>
+
+<a class="filename" href="/articles/on_java_exceptions/test.c">
+	test.c
+</a>
+
+
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+	<span class="kt">char</span> <span class="o">*</span><span class="n">mem</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mem</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">puts</span><span class="p">(</span><span class="s">&#34;Error: Could not allocate memory!&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="n">EOF</span><span class="p">)</span> <span class="p">{</span>
+			<span class="c1">// could not write
+</span><span class="c1"></span>		<span class="p">}</span>
+		<span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>Here the <code>malloc</code> function return a value of <code>NULL</code> to signal an error.
+Other calls like <code>puts</code> (it returns <code>EOF</code> to indicate an error) use
+different values to signal an error.</p>
+<p>Generally the return values to indicate exceptions are chosen in a way
+that makes it clear that they are not a normal return value. Functions
+that return pointers might return <code>NULL</code>. Functions that return indices
+might return <code>-1</code>.</p>
+<p>C programmers can propagate the error upwards the call hierarchy by
+designing their functions in a way that allows these special values
+and then returning them:</p>
+
+<a class="filename" href="/articles/on_java_exceptions/propagate.c">
+	propagate.c
+</a>
+
+
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="cm">/** 
+</span><span class="cm"> * Returns 0 on success. Other return values indicate errors
+</span><span class="cm"> * */</span>
+<span class="kt">int</span> <span class="nf">myFunc</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">myFunc</span><span class="p">())</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="n">puts</span><span class="p">(</span><span class="s">&#34;Error while calling myFunc&#34;</span><span class="p">);</span>
+		<span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">myFunc</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+	<span class="kt">char</span> <span class="o">*</span><span class="n">mem</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mem</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span> 
+		<span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>The <code>myFunc</code> function handles the error returned by malloc by returning
+a special value (1). It would return (0) to indicate succcess.</p>
+<p>The programmer might need to convert between different error values
+in each function.</p>
+<p>The tooling does not require the programmer to handle or acknowlege
+errors but there are extensions that can help. It is for example
+possible to use attributes like this to enforce the checking of return
+values:</p>
+
+<a class="filename" href="/articles/on_java_exceptions/checked.c">
+	checked.c
+</a>
+
+
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="cm">/** 
+</span><span class="cm"> * Returns 0 on success. Other return values indicate errors
+</span><span class="cm"> * */</span>
+<span class="n">__attribute__</span> <span class="p">((</span><span class="n">warn_unused_result</span><span class="p">))</span> <span class="kt">int</span> <span class="n">myFunc</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">myFunc</span><span class="p">();</span>
+<span class="p">}</span>
+
+
+<span class="kt">int</span> <span class="nf">myFunc</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+	<span class="kt">char</span> <span class="o">*</span><span class="n">mem</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mem</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span> 
+		<span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>Here the compiler can omit a warning that the return value is ignored:</p>
+
+	
+
+
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-plaintext" data-lang="plaintext">checked.c: In function &#39;main&#39;:
+checked.c:10:2: warning: ignoring return value of &#39;myFunc&#39;, declared
+                with attribute warn_unused_result [-Wunused-result]
+   10 |  myFunc();
+      |  ^~~~~~~~</code></pre></div>
+
+
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<h4 id="go">Go</h4>
+<p>Other languages make a clearer distinction between normal return values
+and error values.</p>
+<p>Go for example handles errors like this:</p>
+
+<a class="filename" href="/articles/on_java_exceptions/test.go">
+	test.go
+</a>
+
+
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;fmt&#34;</span>
+	<span class="s">&#34;strconv&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">parsed</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">Atoi</span><span class="p">(</span><span class="s">&#34;someVal&#34;</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">parsed</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div>
+
+
+<p>Here the function <code>Atoi</code> returns 2 values. The first being the real value
+and the second being the error. If there is no error the second value will
+be <code>nil</code>.</p>
+<p>Propagating the error works by passing the error on. As in c the
+programmer needs to do this manually by return the appropiate value.</p>
+
+<a class="filename" href="/articles/on_java_exceptions/propagate.go">
+	propagate.go
+</a>
+
+
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;fmt&#34;</span>
+	<span class="s">&#34;strconv&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">parsed</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">myFunc</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">parsed</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">myFunc</span><span class="p">()</span> <span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">parsed</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">Atoi</span><span class="p">(</span><span class="s">&#34;someVal&#34;</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">parsed</span><span class="p">,</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>In constrast to c the compiler enforces by default that all return values
+must be used. They can also be explicitly ignored by assigning them to <code>_</code>.</p>
+<h4 id="rust">Rust</h4>
+<p>Rust handles errors by returning a single type that can either contain an
+error or the result:</p>
+
+<a class="filename" href="/articles/on_java_exceptions/test.rs">
+	test.rs
+</a>
+
+
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">fs</span>::<span class="n">File</span><span class="p">;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">File</span>::<span class="n">open</span><span class="p">(</span><span class="s">&#34;hello.txt&#34;</span><span class="p">);</span><span class="w">
+</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">        </span><span class="nb">Ok</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">file</span><span class="p">,</span><span class="w">
+</span><span class="w">        </span><span class="nb">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">            </span><span class="n">panic</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Problem opening the file: {:?}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span><span class="w">
+</span><span class="w">        </span><span class="p">},</span><span class="w">
+</span><span class="w">    </span><span class="p">};</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+
+
+<p>In c and go if the error should propagate upwards the pragrammer had to
+manually return the error value. In rust the <code>?</code> oparator can be used
+to achive an early return that propagates the error.</p>
+
+<a class="filename" href="/articles/on_java_exceptions/propagate.rs">
+	propagate.rs
+</a>
+
+
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-rust" data-lang="rust"><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">fs</span>::<span class="n">File</span><span class="p">;</span><span class="w">
+</span><span class="w"></span><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">io</span>::<span class="nb">Result</span><span class="p">;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="n">my_func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">        </span><span class="nb">Ok</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">file</span><span class="p">,</span><span class="w">
+</span><span class="w">        </span><span class="nb">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">            </span><span class="n">panic</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Problem opening the file: {:?}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span><span class="w">
+</span><span class="w">        </span><span class="p">},</span><span class="w">
+</span><span class="w">    </span><span class="p">};</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">fn</span> <span class="nf">my_func</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="n">File</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">File</span>::<span class="n">open</span><span class="p">(</span><span class="s">&#34;hello.txt&#34;</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span><span class="w">    </span><span class="n">print</span><span class="o">!</span><span class="p">(</span><span class="s">&#34;Successfully opened file {:?}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">file</span><span class="p">);</span><span class="w">
+</span><span class="w">    </span><span class="nb">Ok</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="w">
+</span><span class="w"></span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+
+
+<h2 id="exceptions-in-java">Exceptions in Java</h2>
+<p>Java does not use a special return value. Instead exceptions are
+signaled out of band by &ldquo;throwing&rdquo; them.</p>
+
+<a class="filename" href="/articles/on_java_exceptions/ThrowableExample.java">
+	ThrowableExample.java
+</a>
+
+
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ThrowableExample</span> <span class="o">{</span>
+	<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">MyThrowable</span> <span class="o">{</span>
+		<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">myFunc</span><span class="o">());</span>
+	<span class="o">}</span>
+
+	<span class="kd">static</span> <span class="kt">int</span> <span class="nf">myFunc</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">MyThrowable</span> <span class="o">{</span>
+		<span class="k">if</span> <span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">random</span><span class="o">()</span> <span class="o">&lt;</span> <span class="n">0</span><span class="o">.</span><span class="na">5</span><span class="o">)</span> <span class="o">{</span>
+			<span class="k">throw</span> <span class="k">new</span> <span class="n">MyThrowable</span><span class="o">();</span>
+		<span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+			<span class="k">return</span> <span class="n">42</span><span class="o">;</span>
+		<span class="o">}</span>
+	<span class="o">}</span>
+
+	<span class="kd">static</span> <span class="kd">class</span> <span class="nc">MyThrowable</span> <span class="kd">extends</span> <span class="n">Throwable</span> <span class="o">{</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div>
+
+
+<p>The method <code>myMethod</code> has only one return value. But it can still
+indicate exceptions. The method has to advertise the exceptions
+that can be thrown by adding them to it&rsquo;s signature.</p>
+<p>Possible exceptions must be handled by &ldquo;catching&rdquo; them. If
+an exception isn&rsquo;t it will propagate upwards and has therefore
+to be declared in the method signature of the caller. The compiler
+enforces this.</p>
+<p>Before we talk about the other exception type in java let&rsquo;s pause
+for a moment and think about what benefits and drawbacks we get
+from this.</p>
+<p>Benefits:</p>
+<ul>
+<li>As with go and rust we know if a method can fail by looking at it&rsquo;s
+signature.</li>
+<li>As with go and rust (and to some extend c) we can have complex error
+types that can contain further information about the error.</li>
+<li>As with go and rust the compiler checks proper handling of exceptions.</li>
+<li>Passing exceptions upwards the call stack happens automatically.</li>
+</ul>
+<p>Drawbacks:</p>
+<ul>
+<li>Java introduces a special syntax for error handling which is adding
+complexity to the language. Go and rust avoid this by reusing programming
+constructs that are used elsewhere in the language.</li>
+<li>It is not clear which line in a piece of code may throw by only looking
+at how it&rsquo;s used.</li>
+</ul>
+<p>For last drawback consider the following code:</p>
+
+<a class="filename" href="/articles/on_java_exceptions/WhoThrows.java">
+	WhoThrows.java
+</a>
+
+
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kn">import static</span> <span class="nn">Example.method1</span><span class="o">;</span>
+<span class="kn">import static</span> <span class="nn">Example.method2</span><span class="o">;</span>
+<span class="kn">import static</span> <span class="nn">Example.method3</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">WhoTrhows</span> <span class="o">{</span>
+	<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">MyThrowable</span> <span class="o">{</span>
+		<span class="n">method1</span><span class="o">();</span>
+		<span class="n">method2</span><span class="o">();</span>
+		<span class="n">method3</span><span class="o">()</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div>
+
+
+<p>From reading this piece of code alone it&rsquo;s impossible to say
+which function may throw and abort the normal execution flow. Go
+makes this clear by forcing the caller to use the return values. Rust
+makes this clear by either handling the return value or by explicity
+appending <code>?</code> to the function call.</p>
+<p>I think this is a medium drawback of java&rsquo;s approach to exceptions. Especially
+in big methods it&rsquo;s very hard to reason which lines will be executed
+and which may be skipped.</p>
+<h3 id="unchecked-exceptions">Unchecked Exceptions</h3>
+<p>Java handles a lot of programming errors by throwing exceptions. Examples for
+this are:</p>
+<ul>
+<li>accessing a <code>null</code> value.</li>
+<li>trying to read an array with an out of bounds index</li>
+<li>dividing an an integer value by zero.</li>
+</ul>
+<p>Especially the first two exceptions could appear in almost every line.
+Forcing the programmer to declare these Exceptions everywhere would
+only clutter the code without making it more clear. It is also
+not reasonable to except the programmer to be able to recover from
+an exception that occures because of a <code>null</code> access since this
+most likely means that there is a bug in the code. This makes
+everything else beyond this point unreliable.</p>
+<p>The solution for this in java are the so called unchecked exceptions.
+The compiler doesn&rsquo;t check if these exceptions are handled or declared
+in the method signature. Otherwise they behave the same. They still
+could be handled by being caught and they still propagate upwards
+if they aren&rsquo;t.</p>
+<p>Unchecked exceptions are not a unique privilege of the java creators. Everyone
+can create an unchecked exception by letting it extend <code>RuntimeException</code>.</p>
+<h3 id="which-exception-type-to-use-and-why-is-it-unchecked">Which exception type to use and why is it unchecked?</h3>
+<p>The general guideline is to use checked exception when the caller
+can be expected to recover from the problem. (See also
+<a href="https://docs.oracle.com/javase/tutorial/essential/exceptions/runtime.html">Unchecked Exceptions — The Controversy</a>
+by Oracle.)</p>
+<p>Springs rest and jdbc abstractions only throw unchecked exceptions.
+Robert C. Martin writes the following</p>
+<blockquote>
+<p>The debate is over. For years Java programmers have debated over the
+benefits and liabilities of checked exceptions. When checked exceptions
+were introduced in the first version of Java, they seemed like a great
+idea. The signature of every method would list all of the exceptions
+that it could pass to its caller. Moreover, these exceptions were part
+of the type of the method. Your code literally wouldn’t compile if
+the signature didn’t match what your code could do.</p>
+<p>At the time, we thought that checked exceptions were a great idea; and
+yes, they can yield some benefit. However, it is clear now that they
+aren’t necessary for the production of robust software. C# doesn’t have
+checked exceptions, and despite valiant attempts, C++ doesn’t either.
+Neither do Python or Ruby. Yet it is possible to write robust software
+in all of these languages. Because that is the case, we have to
+decide—really—whether checked exceptions are worth their price.</p>
+<p>— <!-- raw HTML omitted -->Robert C. Martin &ldquo;Clean Code:  A Handbook of Agile Software Craftmanship&rdquo; (p. 106)<!-- raw HTML omitted --></p>
+</blockquote>
+<p>Why are these projects and people advocating against checked exceptions?
+Let&rsquo;s take a look at the arguments.</p>
+<h4 id="often-they-cant-be-handled">Often they can&rsquo;t be handled</h4>
+<p>Despite the general guideline, to only use checked exceptions when the
+caller can recover from them,
+<a href="http://literatejava.com/exceptions/checked-exceptions-javas-biggest-mistake/">many</a>
+<a href="https://stackoverflow.com/questions/29370541/java-exceptions-that-cannot-be-handled">argue</a>
+that this can lead to the following problem:</p>
+<p>An
+<a href="https://howtodoinjava.com/best-practices/java-exception-handling-best-practices/">often</a>
+<a href="https://arstechnica.com/information-technology/2014/10/why-throw-early-and-catch-late/">cited</a>
+<a href="https://softwareengineering.stackexchange.com/questions/231057/exceptions-why-throw-early-why-catch-late">exception handling</a>
+<a href="https://medium.com/@rafacdelnero/11-mistakes-java-developers-make-when-using-exceptions-af481a153397">best practice</a>
+is &ldquo;throw early catch late&rdquo;. What this means is that an exception should
+propagate upwards until it arrives at an layer in which it can be reasonably
+handled.</p>
+<p>This best practice applied to projects implementing mostly business logic leads to it
+just propagating most exceptions upwards. These projects tend to be designed in a
+similar manner:</p>
+
+	
+
+
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-plaintext" data-lang="plaintext">+-------------------------+
+| Framework               |
+| +---------------------+ |
+| |                     | |
+| | BUSINESS            | |
+| | LOGIC !!!           | |
+| |                     | |
+| | (This is the code   | |
+| |  we get payed for)  | |
+| |                     | |
+| | +-----------------+ | |
+| | | Persistence etc.| | |
+| | +-----------------+ | |
+| +---------------------+ |
++-------------------------+</code></pre></div>
+
+
+<p>Only very few exceptions really concern the business layer. Most exceptions are
+just low-level ones for which we don&rsquo;t care. Examples are</p>
+<ul>
+<li>There is a problem with the DB (no connection, wrong credentials, full disk)</li>
+<li>There is a problem when trying to access a resource via http</li>
+<li>A http request may be illformed</li>
+<li>The client looses it&rsquo;s connection while we write an http response</li>
+</ul>
+<p>All these are things that we are not able to handle in our business logic.
+As a result our code ends up cluttered with exception propagation in the form
+of <code>throws</code> declarations or wrapping the exceptions in <code>RuntimeException</code>s.</p>
+<h4 id="they-dont-work-when-extending-jdk-or-other-3rd-party-classes">They don&rsquo;t work when extending JDK (or other 3rd party) classes</h4>
+<p>We cannot use the the functional interfaces of java. Supplier,Function,Consumer
+and so on all don&rsquo;t support checked exceptions. We could write our own variants
+that are allowed to throw. But than we wouldn&rsquo;t be able to use those with
+standard library calls like &lsquo;Arrays.sort&rsquo;, <code>map</code> or <code>filter</code>.</p>
+<p>The <code>Runnable</code> interface has the same problem and it&rsquo;s part of Java since
+1.0.</p>
+<p>The only way to solve this problem is by wrapping the checked exceptions in
+unchecked ones. Or to not throw checked ones in the first place&hellip;</p>
+<p>It&rsquo;s also not only functional interfaces that have these problems. Want to
+implement your own <code>List</code> class thats backed by a database or file storage?
+Better wrap all your checked exceptions in unchecked ones to allow the
+code to compile.</p>
+
+		</div>
+	</article>
+
+        </main></body>
+</html>

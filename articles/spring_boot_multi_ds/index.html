@@ -12,7 +12,6 @@
 		<ol>
 			<li>
 				<a href="/">Blog</a>
-				<a href="/oss_contributions/">OSS Contributions</a>
 				<a href="/CV.pdf">CV</a>
 			</li>
 		</ol>
@@ -31,44 +30,37 @@
 			</span>
 		</header>
 		<div class="articleBody">
-			
-
-<p>When you want to use a <a href="https://docs.oracle.com/javase/9/docs/api/javax/sql/DataSource.html">Datasource</a>
+			<p>When you want to use a <a href="https://docs.oracle.com/javase/9/docs/api/javax/sql/DataSource.html">Datasource</a>
 with Spring Boot the <a href="https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/jdbc/DataSourceAutoConfiguration.html">DataSourceAutoConfiguration</a>  will set up some things for you.</p>
-
 <p>It will allow you to execute some initial SQL to initialize your database, support the
 <a href="https://github.com/spring-projects/spring-boot/blob/v1.5.10.RELEASE/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/jdbc/DataSourceProperties.java">spring.datasource</a>
 properties, create an embedded Database for you when one of the supported .jars is found in the classpath,
 and support connection pooling.</p>
-
 <p>When we want to configure more than one Datasource the auto configuration won&rsquo;t be able to handle this situation since it&rsquo;s
 only expecting a single DataSource bean.
 You could add the <a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/Primary.html">@Primary</a> annotation to one of your DataSources.
 But then only one of your DataSources will get auto configured in the way described
 above.</p>
-
 <h2 id="the-better-solution">The better solution</h2>
-
 <p>When we look at the source code of the DataSourceAutoConfіguration we can see how the above features are implemented.
 We can then implement them ourself.</p>
-
 <h3 id="the-datasource-configuration">The DataSource configuration</h3>
-
 <p>First of all we want to be able to configure our multiple DataSources. Spring Boot achives this with the
 <a href="https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/jdbc/DataSourceProperties.html">DataSourceProperties</a> configuration bean.
 All the spring.datasource properties are mapped to this bean. This is achived with the
 <a href="https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/context/properties/ConfigurationProperties.html">@ConfigurationProperties</a> annotation.</p>
-
 <p>But we need to be able to create this bean multiple times.
 With different prefixes for our DataSources.
 We could extend the class multiple times and each time add our own @ConfigurationProperties annotation.
 But I think there is an better solution.</p>
-
 <p>We create the configuration bean programmatically in one of our configuration classes:</p>
 
+	
 
 
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Bean</span>
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Bean</span>
 <span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">datasourceOneProperties</span><span class="o">)</span>
 <span class="kd">public</span> <span class="n">DataSource</span> <span class="nf">dataSourceOne</span><span class="o">(</span>
 		<span class="nd">@Qualifier</span><span class="o">(</span><span class="s">&#34;datasourceOneProperties&#34;</span><span class="o">)</span> <span class="n">DataSourceProperties</span> <span class="n">properties</span><span class="o">)</span>
@@ -86,13 +78,15 @@ But I think there is an better solution.</p>
 
 
 <h3 id="the-datasourceinitializer">The DataSourceInitializer</h3>
-
 <p>The DataSourceInitializer is more difficult. It is not a public class. We need to copy the source file and
 create our own DataSourceInitializer. Then we can create the beans programmatically:</p>
 
+	
 
 
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Bean</span>
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Bean</span>
 <span class="kd">public</span> <span class="n">DataSourceInitializer</span> <span class="nf">dataSourceOneInitializer</span><span class="o">(</span>
 		<span class="nd">@Qualifier</span><span class="o">(</span><span class="s">&#34;datasourceOneProperties&#34;</span><span class="o">)</span> <span class="n">DataSourceProperties</span> <span class="n">properties</span><span class="o">,</span>
 		<span class="n">ApplicationContext</span> <span class="n">applicationContext</span><span class="o">)</span>
@@ -110,18 +104,19 @@ create our own DataSourceInitializer. Then we can create the beans programmatica
 
 
 <h3 id="the-actual-datasource">The actual DataSource</h3>
-
 <p>The Autoconfiguration uses a multitude of conditions to decide which Configuration to use to create the actual
 DataSource.
 The easiest to understand is the EmbeddedDatabaseConfiguration.
 It it will only apply if no DataSource is defined <em>and</em> no PooledDataSource is available.
 Take a look at the DataSourceAutoConfiguration class to see how these checks are implemented.</p>
-
 <p>In the case that you want to create your own DataSource for an embedded Database the code would look like this:</p>
 
+	
 
 
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="n">EmbeddedDatabase</span> <span class="n">databaseOne</span><span class="o">;</span>
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="n">EmbeddedDatabase</span> <span class="n">databaseOne</span><span class="o">;</span>
 <span class="kd">private</span> <span class="n">EmbeddedDatabase</span> <span class="n">databaseTwo</span><span class="o">;</span>
 
 <span class="nd">@Bean</span>
@@ -158,9 +153,12 @@ Take a look at the DataSourceAutoConfiguration class to see how these checks are
 <p>But in most cases you don&rsquo;t want an embedded database. In these cases you can let the DataSourceBuilder create
 an DataSource for you:</p>
 
+	
 
 
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Bean</span>
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@Bean</span>
 <span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">datasourceOneProperties</span><span class="o">)</span>
 <span class="kd">public</span> <span class="n">DataSource</span> <span class="nf">dataSourceOne</span><span class="o">(</span>
 			<span class="nd">@Qualifier</span><span class="o">(</span><span class="s">&#34;datasourceOneProperties&#34;</span><span class="o">)</span> <span class="n">DataSourceProperties</span> <span class="n">properties</span><span class="o">)</span>
@@ -178,23 +176,25 @@ an DataSource for you:</p>
 
 
 <h3 id="the-last-touch">The last touch</h3>
-
 <p>We now have two DataSources using the Tomcat connection pool which can be configured under two different prefixes.
 But we have a problem.
 The DataSourceAutoConfiguration still wants to create its own DataSourceInitializer bean.
 And when you are using the Tomcat connection pool also the TomcatDataSourceJmxConfiguration.
 This will fail because spring does not know which DataSource to use.</p>
-
 <p>Again we could use the @Primary annotation.
 But since we decided we want to take DataSource creation in our own hands its best to just disable the
 autoconfiguration of DataSources:</p>
 
+	
 
 
-<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@SpringBootApplication</span><span class="o">(</span><span class="n">exclude</span> <span class="o">=</span> <span class="n">DataSourceAutoConfiguration</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="nd">@SpringBootApplication</span><span class="o">(</span><span class="n">exclude</span> <span class="o">=</span> <span class="n">DataSourceAutoConfiguration</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="o">{</span>
 	<span class="c1">// stuff
 </span><span class="c1"></span><span class="o">}</span></code></pre></div>
+
 
 
 		</div>

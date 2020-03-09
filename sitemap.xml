@@ -1,22 +1,25 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
     <loc>https://Serranya.github.io/articles/</loc>
-    <lastmod>2018-06-06T00:00:00+02:00</lastmod>
-    <priority>0</priority>
+    <lastmod>2020-03-06T00:00:00+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://Serranya.github.io/articles/on_java_exceptions/</loc>
+    <lastmod>2020-03-06T00:00:00+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://Serranya.github.io/</loc>
+    <lastmod>2020-03-06T00:00:00+01:00</lastmod>
   </url>
   
   <url>
     <loc>https://Serranya.github.io/articles/mirror_to_github/</loc>
     <lastmod>2018-06-06T00:00:00+02:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://Serranya.github.io/</loc>
-    <lastmod>2018-06-06T00:00:00+02:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -31,12 +34,10 @@
   
   <url>
     <loc>https://Serranya.github.io/categories/</loc>
-    <priority>0</priority>
   </url>
   
   <url>
     <loc>https://Serranya.github.io/tags/</loc>
-    <priority>0</priority>
   </url>
   
 </urlset>

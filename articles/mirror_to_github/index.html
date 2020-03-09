@@ -12,7 +12,6 @@
 		<ol>
 			<li>
 				<a href="/">Blog</a>
-				<a href="/oss_contributions/">OSS Contributions</a>
 				<a href="/CV.pdf">CV</a>
 			</li>
 		</ol>
@@ -31,12 +30,9 @@
 			</span>
 		</header>
 		<div class="articleBody">
-			
-
-<p><a href="https://github.com">Github</a> is probably the most famous and most used hoster for git repositories.
+			<p><a href="https://github.com">Github</a> is probably the most famous and most used hoster for git repositories.
 It does not only provide hosting for the repository itself, but it also provides
 ticket management, wikis, website hosting, ci integration, binary hosting for releases and more.</p>
-
 <p>What I don&rsquo;t like is to depend on it.
 With every feature of github I use, it becomes more difficult to host my projects myself.
 While I can mirgrate most things (code, releases, issues, wiki pages) with an medium effort some
@@ -44,35 +40,32 @@ things are mostly out of my control.
 With that I mean the build scripts of maintainers pointing to github as the officіal project page
 and using github as source for their builds and other external things, that now assume, that github
 is the official page.</p>
-
 <p>While the features of github <em>are</em> pretty neat, I really don&rsquo;t like the risk of github changing in
 a way that would make hosting my projects there unfavorable.
 I still remember the <a href="https://en.wikipedia.org/wiki/SourceForge#Controversies">debacle</a> with SourceForge.</p>
-
 <p>On the other hand github became <em>the</em> de facto standard for OSS hosting.
 When a project does not have a github page, it might seem old and outdated.
 I also think that github makes contributions from other people much more likely, because it&rsquo;s just so convenient.</p>
-
 <h2 id="a-partial-solution">A (partial) solution</h2>
-
 <p>So what do I do now?
 Github was in the past the official home of my projects.
 How can I cange that?</p>
-
 <p>I plan to migrate away in small steps.
 The first one is to host the code <a href="https://git.serra.dynamic-dns.net">myself</a>.
 But I still want the code to be available on github.
 I want an automatic way to reflect all changes in my self-hosted git repository on github.</p>
-
 <p>To do this I added an <a href="https://git-scm.com/docs/githooks">git hook</a> to the repositories I host:</p>
 
+	
+	<a class="filename" href=" # ">
+		$GIT_DIR/hooks/post-receive
+	</a>
+	
 
-<a class="filename" href="#">
-	$GIT_DIR/hooks/post-receive
-</a>
 
 
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
+
+	<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
 </span><span class="cp"></span>
 <span class="k">if</span> git push github -f --mirror<span class="p">;</span> <span class="k">then</span>
         <span class="nb">echo</span> <span class="s1">&#39;Successfully mirrored to github&#39;</span>
@@ -83,28 +76,33 @@ I want an automatic way to reflect all changes in my self-hosted git repository 
 
 <p>Here &ldquo;github&rdquo; is the name of the remote that points to my project on github.
 But how does authentification work?</p>
-
 <p>Since ssh іs used for pushing the default ssh key of the user is used.
 But who is the user?
 It should be the user of the httpd process.
 To be really sure I used the following hook first:</p>
 
+	
+	<a class="filename" href=" # ">
+		$GIT_DIR/hooks/post-receive
+	</a>
+	
 
-<a class="filename" href="#">
-	$GIT_DIR/hooks/post-receive
-</a>
 
 
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
+
+	<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
 </span><span class="cp"></span>
 <span class="nb">echo</span> <span class="k">$(</span>id<span class="k">)</span></code></pre></div>
 
 
 <p>After a test commit I got the following response on the client:</p>
 
+	
 
 
-<div class="highlight"><pre class="chroma"><code class="language-plaintext" data-lang="plaintext">Counting objects: 62, done.
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-plaintext" data-lang="plaintext">Counting objects: 62, done.
 Delta compression using up to 8 threads.
 Compressing objects: 100% (50/50), done.
 Writing objects: 100% (62/62), 15.50 KiB | 1.11 MiB/s, done.
@@ -117,9 +115,12 @@ Total 62 (delta 4), reused 10 (delta 0)
 <p>The http user had no ssh key yet so I created one.
 For me the easiest way to do that was to log in as the http user and configure these things:</p>
 
+	
 
 
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">chsh -s /bin/bash http
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">chsh -s /bin/bash http
 su - http
 ssh-keygen -t ed25519 -C <span class="s2">&#34;</span><span class="k">$(</span>whoami<span class="k">)</span><span class="s2">@</span><span class="k">$(</span>hostname<span class="k">)</span><span class="s2">-</span><span class="k">$(</span>date -I<span class="k">)</span><span class="s2">&#34;</span>
 chsh -s /bin/nologin http</code></pre></div>
@@ -127,9 +128,12 @@ chsh -s /bin/nologin http</code></pre></div>
 
 <p>Now I get the following output when pushing to my remote:</p>
 
+	
 
 
-<div class="highlight"><pre class="chroma"><code class="language-plaintext" data-lang="plaintext">Counting objects: 62, done.
+
+
+	<div class="highlight"><pre class="chroma"><code class="language-plaintext" data-lang="plaintext">Counting objects: 62, done.
 Delta compression using up to 8 threads.
 Compressing objects: 100% (50/50), done.
 Writing objects: 100% (62/62), 15.50 KiB | 992.00 KiB/s, done.
@@ -141,6 +145,7 @@ Total 62 (delta 4), reused 10 (delta 0)
 </span><span class="hl">remote: Successfully mirrored to github
 </span>To https://git.serra.dynamic-dns.net/ballot/
  + 865cdfa...575156d master -&gt; master (forced update)</code></pre></div>
+
 
 
 		</div>
